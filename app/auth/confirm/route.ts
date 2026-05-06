@@ -1,4 +1,3 @@
-// app/auth/confirm/route.ts
 import { createClient } from "@/lib/supabase/server";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
@@ -9,8 +8,9 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   
-  // Update: Change default redirect to your admin dashboard
-  const next = searchParams.get("next") ?? "/admin";
+  // After confirmation, we send them to a 'pending' page 
+  // instead of the dashboard to wait for admin approval.
+  const next = "/auth/pending";
 
   if (token_hash && type) {
     const supabase = await createClient();
@@ -21,13 +21,15 @@ export async function GET(request: NextRequest) {
     });
 
     if (!error) {
-      // Success: Redirect to dashboard with a success message in the URL
-      redirect(`${next}?message=Email verified successfully!`);
+      // The session is now verified. 
+      // Redirect them to the page explaining they need approval.
+      redirect(next);
     } else {
-      // Error: Redirect to your custom error page
+      // If verification fails (expired link, etc.), send to error page
       redirect(`/auth/error?error=${encodeURIComponent(error.message)}`);
     }
   }
 
-  redirect(`/auth/error?error=Missing authentication token`);
+  // Fallback for missing parameters
+  redirect(`/auth/error?error=Invalid confirmation link`);
 }
