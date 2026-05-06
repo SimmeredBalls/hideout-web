@@ -1,3 +1,4 @@
+// app/auth/confirm/route.ts
 import { createClient } from "@/lib/supabase/server";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
@@ -7,7 +8,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const next = searchParams.get("next") ?? "/";
+  
+  // Update: Change default redirect to your admin dashboard
+  const next = searchParams.get("next") ?? "/admin";
 
   if (token_hash && type) {
     const supabase = await createClient();
@@ -16,15 +19,15 @@ export async function GET(request: NextRequest) {
       type,
       token_hash,
     });
+
     if (!error) {
-      // redirect user to specified redirect URL or root of app
-      redirect(next);
+      // Success: Redirect to dashboard with a success message in the URL
+      redirect(`${next}?message=Email verified successfully!`);
     } else {
-      // redirect the user to an error page with some instructions
-      redirect(`/auth/error?error=${error?.message}`);
+      // Error: Redirect to your custom error page
+      redirect(`/auth/error?error=${encodeURIComponent(error.message)}`);
     }
   }
 
-  // redirect the user to an error page with some instructions
-  redirect(`/auth/error?error=No token hash or type`);
+  redirect(`/auth/error?error=Missing authentication token`);
 }
