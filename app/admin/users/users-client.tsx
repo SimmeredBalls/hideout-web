@@ -151,23 +151,89 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
         </table>
       </div>
 
-      {/* Modal logic remains the same */}
+      {/* Modal for Add/Edit */}
       {isModalOpen && (
-         <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
-            {/* ... Modal content from your original code ... */}
-            <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl w-full max-w-md shadow-2xl">
-               <h2 className="text-2xl font-black mb-6 text-white uppercase italic tracking-tight">
-                 {editingUser ? 'Update Profile' : 'Register New Staff'}
-               </h2>
-               <form onSubmit={handleSaveUser} className="space-y-5">
-                 {/* ... Form Inputs ... */}
-                 <div className="flex gap-3 pt-6">
-                   <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Cancel</button>
-                   <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-blue-900/30">Confirm</button>
-                 </div>
-               </form>
-            </div>
-         </div>
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl w-full max-w-md shadow-2xl">
+            <h2 className="text-2xl font-black mb-6 text-white uppercase italic tracking-tight">
+              {editingUser ? 'Update Profile' : 'Register New Staff'}
+            </h2>
+            
+            <form onSubmit={handleSaveUser} className="space-y-5">
+              {/* ALWAYS VISIBLE: Full Name */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] uppercase font-black text-zinc-500 ml-1 tracking-widest">Full Name</label>
+                <input 
+                  required placeholder="e.g. Stephen John" value={formData.fullName}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 text-sm text-white outline-none focus:border-blue-600 transition-all"
+                  onChange={e => setFormData({...formData, fullName: e.target.value})}
+                />
+              </div>
+
+              {/* ONLY VISIBLE WHEN CREATING NEW: Email & Password */}
+              {!editingUser && (
+                <>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase font-black text-zinc-500 ml-1 tracking-widest">Email Address</label>
+                    <input 
+                      required type="email" placeholder="staff@hideout.com"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 text-sm text-white outline-none focus:border-blue-600 transition-all font-mono"
+                      onChange={e => setFormData({...formData, email: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase font-black text-zinc-500 ml-1 tracking-widest">Initial Password</label>
+                    <input 
+                      required type="password" placeholder="••••••••"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 text-sm text-white outline-none focus:border-blue-600 transition-all"
+                      onChange={e => setFormData({...formData, password: e.target.value})}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* ALWAYS VISIBLE: Contact Number */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] uppercase font-black text-zinc-500 ml-1 tracking-widest">Contact Number</label>
+                <input 
+                  placeholder="09XXXXXXXXX" value={formData.phone}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 text-sm text-white outline-none focus:border-blue-600 transition-all"
+                  onChange={e => setFormData({...formData, phone: e.target.value})}
+                />
+              </div>
+
+              {/* ALWAYS VISIBLE: Permission Level */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] uppercase font-black text-zinc-500 ml-1 tracking-widest">Permission Level</label>
+                <select 
+                  value={formData.role}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 text-sm text-white outline-none focus:border-blue-600 transition-all appearance-none cursor-pointer font-bold"
+                  onChange={e => setFormData({...formData, role: e.target.value})}
+                >
+                  <option value="GUEST" className="bg-zinc-900">GUEST (App Access Only)</option>
+                  <option value="STAFF" className="bg-zinc-900">STAFF (Management)</option>
+                  <option value="ADMIN" className="bg-zinc-900">ADMIN (Full Control)</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-6">
+                <button 
+                  type="button" 
+                  onClick={() => setIsModalOpen(false)} 
+                  className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-blue-900/30"
+                >
+                  Confirm
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
