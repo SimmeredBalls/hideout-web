@@ -16,6 +16,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
   const router = useRouter();
   const supabase = createClient();
 
+  // Real-time synchronization for instant updates across platforms [cite: 103, 109]
   useEffect(() => {
     const channel = supabase
       .channel("admin-bookings-live")
@@ -67,12 +68,12 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
         <AddBookingForm />
       </div>
 
-      {/* Control Panel / Filters */}
+      {/* Improved Control Panel */}
       <div className="flex flex-col md:flex-row gap-3 p-4 bg-zinc-950/50 border border-zinc-800 rounded-2xl backdrop-blur-md">
         <div className="flex-1 relative">
           <input 
             type="text"
-            placeholder="FILTER BY GUEST OR ROOM..."
+            placeholder="SEARCH GUEST NAME OR ROOM NUMBER..."
             className="w-full bg-zinc-900/50 border border-zinc-800 p-3 pl-10 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-zinc-700"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -81,15 +82,18 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
             <SearchIcon />
           </div>
         </div>
+        
+        {/* Updated Dropdown with PENDING category */}
         <select 
           className="bg-zinc-900/50 border border-zinc-800 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 outline-none cursor-pointer focus:ring-1 focus:ring-blue-500 transition-all hover:bg-zinc-900"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
-          <option value="ALL">All Status</option>
-          <option value="CONFIRMED">Confirmed</option>
-          <option value="CHECKED_IN">Checked In</option>
-          <option value="COMPLETED">Completed</option>
+          <option value="ALL">All Manifest</option>
+          <option value="PENDING">Pending Approval</option>
+          <option value="CONFIRMED">Confirmed Stays</option>
+          <option value="CHECKED_IN">In-House Guests</option>
+          <option value="COMPLETED">Archived Stays</option>
           <option value="CANCELLED">Cancelled</option>
         </select>
       </div>
@@ -117,7 +121,8 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
             ) : (
               paginatedBookings.map((booking) => {
                 const totalPaid = booking.payments?.reduce((sum: number, p: any) => sum + p.amount, 0) || 0;
-                const remainingBalance = booking.total_price - totalPaid;
+                // Round to handle double precision math discrepancies [cite: 350]
+                const remainingBalance = Math.max(0, Number((booking.total_price - totalPaid).toFixed(2)));
 
                 return (
                   <tr key={booking.id} className="group hover:bg-zinc-900/30 transition-colors">
@@ -201,6 +206,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
+    PENDING: "bg-amber-500/10 text-amber-500 border-amber-500/20", // Added style for Pending
     CONFIRMED: "bg-blue-500/10 text-blue-500 border-blue-500/20",
     CHECKED_IN: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
     COMPLETED: "bg-zinc-500/10 text-zinc-500 border-zinc-500/20",
