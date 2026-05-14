@@ -109,7 +109,7 @@ export default function BookingActions({
           >
             Cancel
           </button>
-        </div>
+        </div>//booking
       )}
 
       {/* 3. CHECK-OUT LOGIC (Only for In-House Guests) */}
